@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Accounting Classification Quiz</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  .container { max-width: 600px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+  h1 { text-align: center; }
+  .feedback { margin-top: 10px; text-align: center; font-weight: bold; }
+  .green { color: white; background: green; padding: 5px; }
+  .red { color: red; }
+  .yellow { color: orange; }
+  .row { display: flex; justify-content: space-between; margin-top: 15px; }
+  select, input { width: 100%; padding: 8px; margin-top: 5px; }
+  button { padding: 10px 20px; margin-top: 15px; }
+  .center { text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Accounting Classification Quiz</h1>
+  <p class="center">Time Left: <span id="timer">2:00</span></p>
+  <p><strong>Account Name:</strong></p>
+  <input id="accountName" readonly />
+  
+  <div class="row">
+    <div>
+      <p>Account Classification</p>
+      <select id="classification">
+        <option value="">Select Classification</option>
+        <option>Asset</option>
+        <option>Liability</option>
+        <option>Equity</option>
+        <option>Revenue</option>
+        <option>Expense</option>
+      </select>
+    </div>
+    <div>
+      <p>Nature of Account</p>
+      <select id="nature">
+        <option value="">Select Nature</option>
+        <option>Debit</option>
+        <option>Credit</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="center">
+    <button id="submitBtn">Submit</button>
+    <button id="nextBtn" style="display:none;">Next Question</button>
+  </div>
+  
+  <p class="feedback" id="feedback"></p>
+  <p class="center">Score: <span id="score">0</span></p>
+</div>
+
+<script>
+const accounts = [
+  { name: "Sales", type: "Revenue", nature: "Credit" },
+  { name: "Sales Returns and Allowances", type: "Revenue", nature: "Debit" },
+  { name: "Service Fees Revenue", type: "Revenue", nature: "Credit" },
+  { name: "Commission Revenue", type: "Revenue", nature: "Credit" },
+  { name: "Dividends Revenue", type: "Revenue", nature: "Credit" },
+  { name: "Interest Revenue", type: "Revenue", nature: "Credit" },
+  { name: "Rent Revenue", type: "Revenue", nature: "Credit" },
+  { name: "Bad Debts", type: "Expense", nature: "Debit" },
+  { name: "Cost of Goods Sold", type: "Expense", nature: "Debit" },
+  { name: "Depreciation on Buildings", type: "Expense", nature: "Debit" },
+  { name: "Cash at Bank", type: "Asset", nature: "Debit" },
+  { name: "Accounts Receivable Control", type: "Asset", nature: "Debit" },
+  { name: "Capital", type: "Equity", nature: "Credit" },
+  { name: "Drawings", type: "Equity", nature: "Debit" },
+  { name: "Motor Vehicle", type: "Asset", nature: "Debit" },
+  { name: "Computers and Printers", type: "Asset", nature: "Debit" },
+  { name: "Mowing Equipment", type: "Asset", nature: "Debit" },
+  { name: "Wallet Wizard Loan", type: "Liability", nature: "Credit" },
+  { name: "Goodwill", type: "Asset", nature: "Debit" },
+  { name: "GST Collected", type: "Liability", nature: "Credit" },
+  { name: "Accounts Payable", type: "Liability", nature: "Credit" },
+  { name: "Bad Debts Recovered", type: "Revenue", nature: "Credit" },
+  { name: "Inventories", type: "Asset", nature: "Debit" },
+  { name: "Supplies Expense", type: "Expense", nature: "Debit" },
+  { name: "Supplies", type: "Asset", nature: "Debit" },
+  { name: "Petty Cash", type: "Asset", nature: "Debit" }
+];
+
+let score = 0;
+let currentAccount;
+let answered = false;
+let timeLeft = 120;
+
+function getRandomAccount() {
+  return accounts[Math.floor(Math.random() * accounts.length)];
+}
+
+function loadQuestion() {
+  currentAccount = getRandomAccount();
+  document.getElementById("accountName").value = currentAccount.name;
+  document.getElementById("classification").value = "";
+  document.getElementById("nature").value = "";
+  document.getElementById("feedback").innerText = "";
+  document.getElementById("nextBtn").style.display = "none";
+  answered = false;
+}
+
+function updateTimer() {
+  if (timeLeft > 0) {
+    timeLeft--;
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    document.getElementById("timer").innerText = `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  } else {
+    document.getElementById("feedback").innerText = `Time's up! Final Score: ${score}`;
+    document.getElementById("submitBtn").disabled = true;
+    document.getElementById("nextBtn").disabled = true;
+  }
+}
+
+document.getElementById("submitBtn").addEventListener("click", () => {
+  if (answered || timeLeft === 0) return;
+  const type = document.getElementById("classification").value;
+  const nature = document.getElementById("nature").value;
+  
+  if (!type || !nature) {
+    document.getElementById("feedback").innerText = "Please select both classification and nature.";
+    document.getElementById("feedback").className = "feedback yellow";
+    return;
+  }
+  
+  if (type === currentAccount.type && nature === currentAccount.nature) {
+    score += 10;
+    document.getElementById("feedback").innerText = "CORRECT";
+    document.getElementById("feedback").className = "feedback green";
+  } else {
+    score = Math.max(0, score - 5);
+    document.getElementById("feedback").innerText = `Incorrect. Correct: ${currentAccount.type}, ${currentAccount.nature}`;
+    document.getElementById("feedback").className = "feedback red";
+  }
+  
+  document.getElementById("score").innerText = score;
+  document.getElementById("nextBtn").style.display = "inline-block";
+  answered = true;
+});
+
+document.getElementById("nextBtn").addEventListener("click", loadQuestion);
+
+loadQuestion();
+setInterval(updateTimer, 1000);
+</script>
+</body>
+</html>
